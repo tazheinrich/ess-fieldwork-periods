@@ -2,40 +2,6 @@
 library(here)
 library(tidyverse)
 
-# Define file path
-file_path = paste(here(), "data", "ess_fieldwork_periods.csv", sep="/")
-print(file_path)
-
-# Define function to check for missing values
-check_missing_values <- function(data) {
-  missing_rows <- which(is.na(data), arr.ind = TRUE)
-  if (nrow(missing_rows) > 0) {
-    missing_details <- apply(missing_rows, 1, function(row) {
-      paste(names(data)[row[2]], "is missing in row", row[1])
-    })
-    return(missing_details)
-  }
-  return(NULL)
-}
-
-# Check validity of dates
-check_date_order <- function(data) {
-  if (!inherits(data$start_date, "Date")) {
-    data$start_date <- as.Date(data$start_date)
-  }
-  
-  if (!inherits(data$end_date, "Date")) {
-    data$end_date <- as.Date(data$end_date)
-  }
-  
-  invalid_dates <- which(data$start_date >= data$end_date)
-  
-  if (length(invalid_dates) > 0) {
-    return(paste("Invalid date order in row(s):", paste(invalid_dates, collapse = ", ")))
-  }
-  return(NULL)
-}
-
 # Input fieldwork period data
 input <- list(
   list(
@@ -107,12 +73,12 @@ input <- list(
   list(
     4,
     c("AT", "BE", "BG", "HR",
-      "CY", "CZ", "DK", "ES",
+      "CY", "CZ", "DK", "EE",
       "FI", "FR", "DE", "GR",
       "HU", "IE", "IL", "LV",
       "LT", "NL", "NO", "PL",
       "PT", "RO", "RU", "SK",
-      "SI", "ES", "SI", "CH",
+      "SI", "ES", "SE", "CH",
       "TR", "UA", "GB"),
     c("2010-11-01", "2008-11-13", "2009-03-06", "2008-12-22",
       "2008-09-29", "2009-06-08", "2008-09-01", "2008-11-05",
@@ -129,8 +95,7 @@ input <- list(
       "2010-01-12", "2009-06-28", "2009-01-20", "2009-02-15",
       "2009-03-08", "2009-01-19", "2009-04-09", "2009-02-09",
       "2009-01-20", "2009-01-31", "2009-02-03", "2009-04-17",
-      "2009-05-17", "2009-04-02", "2009-01-19")
-  ),
+      "2009-05-17", "2009-04-02", "2009-01-19")),
   list(
     5,
     c("AT", "BE", "BG", "HR",
@@ -153,8 +118,7 @@ input <- list(
       "2010-12-10", "2012-01-03", "2011-06-13", "2011-08-20",
       "2011-04-02", "2011-02-15", "2011-02-06", "2011-03-23",
       "2011-05-14", "2011-02-28", "2011-01-31", "2011-07-24",
-      "2011-03-01", "2011-03-23", "2011-07-30", "2011-02-28")
-  ),
+      "2011-03-01", "2011-03-23", "2011-07-30", "2011-02-28")),
   list(
     6,
     c("AL", "BE", "BG", "CY", 
@@ -180,8 +144,7 @@ input <- list(
       "2013-08-25", "2013-03-30", "2013-02-08", "2013-01-08",
       "2013-03-20", "2012-12-27", "2013-03-06", "2012-12-31",
       "2013-05-14", "2013-05-05", "2013-04-22", "2013-08-09",
-      "2013-02-07")
-  ),
+      "2013-02-07")),
   list(
     7,
     c("AT", "BE", "CZ", "DK",
@@ -201,8 +164,7 @@ input <- list(
       "2015-06-26", "2015-01-31", "2015-12-13", "2015-06-14",
       "2015-01-15", "2015-01-08", "2015-09-14", "2015-11-30",
       "2015-02-01", "2015-05-25", "2015-01-30", "2015-02-02",
-      "2015-02-25")
-  ),
+      "2015-02-25")),
   list(
     8,
     c("AT", "BE", "CZ", "EE",
@@ -222,8 +184,7 @@ input <- list(
       "2017-06-08", "2017-05-08", "2017-02-08", "2017-11-19",
       "2017-12-28", "2017-01-31", "2017-01-17", "2017-02-22",
       "2017-06-15", "2017-03-19", "2017-01-11", "2017-06-23",
-      "2017-02-10", "2017-03-02", "2017-03-20")
-  ),
+      "2017-02-10", "2017-03-02", "2017-03-20")),
   list(
     9,
     c("AL", "AT", "BE", "BG", 
@@ -249,18 +210,17 @@ input <- list(
       "2020-01-21", "2019-12-15", "2019-10-30", "2019-01-22",
       "2019-05-16", "2019-03-20", "2019-12-23", "2019-03-01", 
       "2019-12-07", "2019-02-01", "2020-01-27", "2019-05-23", 
-      "2019-02-11", "2019-02-22")
-  ),
+      "2019-02-11", "2019-02-22")),
   list(
     10,
-    c("AT", "BE", "BG", "HR",
-      "CY", "CZ", "EE", "FI",
-      "FR", "DE", "GR", "HU",
-      "IS", "IE", "IL", "IT",
-      "LV", "LI", "ME", "NL",
-      "MK", "NO", "PL", "PT",
-      "RS", "SK", "SI", "ES",
-      "SE", "CH", "GB"),
+    cntry = c("AT", "BE", "BG", "HR",
+              "CY", "CZ", "EE", "FI",
+              "FR", "DE", "GR", "HU",
+              "IS", "IE", "IL", "IT",
+              "LV", "LI", "ME", "NL",
+              "MK", "NO", "PL", "PT",
+              "RS", "SK", "SI", "ES",
+              "SE", "CH", "GB"),
     c("2021-08-30", "2021-10-27", "2021-06-28", "2021-05-05",
       "2022-03-09", "2021-07-07", "2021-06-07", "2021-08-31",
       "2021-08-23", "2021-10-05", "2021-11-09", "2021-06-10",
@@ -276,8 +236,7 @@ input <- list(
       "2022-01-31", "2021-12-15", "2022-03-30", "2022-04-03",
       "2022-03-07", "2022-05-04", "2022-05-25", "2022-03-06",
       "2022-05-25", "2021-10-21", "2021-08-26", "2022-05-31",
-      "2022-01-17", "2022-05-02", "2022-09-02")
-  ),
+      "2022-01-17", "2022-05-02", "2022-09-02")),
   list(
     11,
     c("AT", "BE", "CY", "CZ",
@@ -300,44 +259,83 @@ input <- list(
       "2024-04-21", "2023-12-31", "2023-11-07", "2023-11-30",
       "2024-04-26", "2024-02-29", "2024-02-29", "2023-12-12",
       "2023-08-14", "2024-06-01", "2023-12-08", "2024-01-31",
-      "2023-12-09")
-  )
-)
+      "2023-12-09")))
 
 # Convert to data frame
 df <- map_dfr(input, function(x) {
   tibble(
     essround = x[[1]],
     cntry = x[[2]],
-    start_date = as.Date(x[[3]]),
-    end_date = as.Date(x[[4]])
+    field_start = as.Date(x[[3]]),
+    field_end = as.Date(x[[4]])
   )
-})  
+})
 
-# Perform the checks
-missing_errors <- check_missing_values(df)
-date_errors <- check_date_order(df)
+# Define file name including extension
+file_name = "ess_fieldwork_periods.csv"
+
+# Define file path for exporting
+file_path = paste(here(), "data", file_name, sep="/")
+
+# Define function to check for missing values
+check_missing_values <- function(data) {
+  missing_rows <- which(is.na(data), arr.ind = TRUE)
+  if (nrow(missing_rows) > 0) {
+    missing_details <- apply(missing_rows, 1, function(row) {
+      paste(names(data)[row[2]], "is missing in row", row[1])
+    })
+    return(missing_details)
+  }
+  return(NULL)
+}
+
+# Check validity of dates
+check_date_order <- function(data) {
+  if (!inherits(data$field_start, "Date")) {
+    data$field_start <- as.Date(data$field_start)
+  }
+  
+  if (!inherits(data$field_end, "Date")) {
+    data$field_end <- as.Date(data$field_end)
+  }
+  
+  invalid_dates <- which(data$field_start >= data$field_end)
+  
+  if (length(invalid_dates) > 0) {
+    return(paste("Invalid date order in row(s):", paste(invalid_dates, collapse = ", ")))
+  }
+  return(NULL)
+}
+
+# Check that each (essround, cntry) combination is unique
+check_unique_combinations <- function(data) {
+  duplicate_rows <- data %>%
+    group_by(essround, cntry) %>%
+    filter(n() > 1) %>%
+    ungroup()
+  
+  if (nrow(duplicate_rows) > 0) {
+    duplicate_info <- duplicate_rows %>%
+      count(essround, cntry, name = "count") %>%
+      arrange(desc(count))
+    
+    return(paste0("Each ESS round/Country combination should be unique. Duplicates found:\n", 
+                 paste0(duplicate_info$cntry,"/", duplicate_info$essround, " appears ", duplicate_info$count, " times", collapse = "; ")))
+  }
+  return(NULL)
+}
+
+# Run checks
+errors <- list(
+  check_missing_values(df),
+  check_date_order(df),
+  check_unique_combinations(df)) %>% 
+  compact()
 
 # Export to CSV
-if (is.null(missing_errors) && is.null(date_errors)) {
-  # If no errors, export as CSV
-  write_csv(x = df, 
-            file = file_path)
-  cat("Data is valid and has been exported successfully.\n")
+if (length(errors) > 0) {
+  cat("Errors found:\n", paste0(errors, collapse = "\n"), "\n")
 } else {
-  # Print detailed errors
-  if (!is.null(missing_errors) && !is.null(date_errors)) {
-    cat("Both missing values and invalid date order were found:\n")
-  }
-  
-  if (!is.null(missing_errors)) {
-    cat("Missing values detected:\n")
-    cat(paste(missing_errors, collapse = "\n"), "\n")
-  }
-  
-  if (!is.null(date_errors)) {
-    cat(date_errors, "\n")
-  }
-  
-  cat("Data has not been exported.\n")
+  write_csv(df, file_path)
+  cat("All checks passed. Exporting CSV-file.\n", "File path:", file_path)
 }
