@@ -1,7 +1,7 @@
 # RStudio files
-.Rproj.user
-.Rhistory
 .RData
+.Rhistory
+.Rproj.user
 .Ruserdata
 
 # OS files
